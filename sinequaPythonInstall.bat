@@ -1,0 +1,1 @@
+python C:\Installation\sinequaInstall.py %*
