@@ -14,30 +14,31 @@ class Application(tk.Frame):
 
     def create_widgets(self):
         self.label_zip = tk.Label(self, text="Zip File Path")
-        self.label_zip.grid(row=0, column=0, sticky='e', padx=(0,10), pady=(0,10))
-        
+        self.label_zip.pack(pady=10)
         self.entry_zip = tk.Entry(self)
-        self.entry_zip.grid(row=0, column=1, padx=(0,10), pady=(0,10))
+        self.entry_zip.pack(pady=10)
         self.entry_zip.insert(0, "sinequa.11.zip")
 
         self.label_extract = tk.Label(self, text="Extract Path")
-        self.label_extract.grid(row=1, column=0, sticky='e', padx=(0,10), pady=(0,10))
-        
+        self.label_extract.pack(pady=10)
         self.entry_extract = tk.Entry(self)
-        self.entry_extract.grid(row=1, column=1, padx=(0,10), pady=(0,10))
+        self.entry_extract.pack(pady=10)
         self.entry_extract.insert(0, "C:\\")
 
-        self.install_button = tk.Button(self, text="Install Sinequa", command=self.install_sinequa)
-        self.install_button.grid(row=2, column=0, columnspan=2, pady=(0,10))
-
-        self.quit = tk.Button(self, text="QUIT", fg="red", command=self.master.destroy)
-        self.quit.grid(row=4, column=0, columnspan=2)
-
-        self.log = scrolledtext.ScrolledText(self, state='disabled', width=50, height=20)
-        self.log.grid(row=3, column=0, columnspan=2, padx=(0,10), pady=(0,10))
+        self.install_button = tk.Button(self)
+        self.install_button["text"] = "Install Sinequa"
+        self.install_button["command"] = self.install_sinequa
+        self.install_button.pack(side="top", pady=20)
 
         self.progress = ttk.Progressbar(self, orient='horizontal', length=300, mode='determinate')
-        self.progress.grid(row=2, column=2, padx=(10,0), pady=(0,10))
+        self.progress.pack(side="top", pady=10)
+
+        self.log = scrolledtext.ScrolledText(self, state='disabled', width=50, height=20)
+        self.log.pack(side="top", pady=10)
+
+        self.quit = tk.Button(self, text="QUIT", fg="red", command=self.master.destroy)
+        self.quit.pack(side="bottom", pady=10)
+
 
     def install_sinequa(self):
         zip_path = self.entry_zip.get()
@@ -56,7 +57,11 @@ class Application(tk.Frame):
             total_files = len(zip_ref.infolist())
             self.log_insert(f'Starting extraction of {total_files} files')
             for index, file in enumerate(zip_ref.infolist(), start=1):
-                zip_ref.extract(file, extract_path)
+                try:
+                    zip_ref.extract(file, extract_path)
+                except Exception as e:
+                    self.log_insert(f'Error extracting file {file.filename}: {str(e)}')
+                    continue
                 if index % 100 == 0:  # update progress every 100 files
                     self.progress['value'] = index / total_files * 100
                     self.log_insert(f'Extracted {index}/{total_files} files')
